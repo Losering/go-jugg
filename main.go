@@ -1,27 +1,24 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"jugg/jugg"
 	"net/http"
 )
 
-type Engine struct{}
-
-func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	switch req.URL.Path {
-	case "/":
-		fmt.Fprintf(w, "URL.Path=%q\n", req.URL.Path)
-	case "/hello":
-		for k, v := range req.Header {
-			fmt.Fprintf(w, "Header[%q] = %q\n", k, v)
-		}
-	default:
-		fmt.Fprintf(w, "404 NOT FOUND: %s\n", req.URL)
-	}
-}
-
 func main() {
-	engine := new(Engine)
-	log.Fatal(http.ListenAndServe(":9999", engine))
+	r := jugg.New()
+
+	r.GET("/", func(ctx *jugg.Context) {
+		ctx.HTML(http.StatusOK, "<h1>Hello Gee</h1>")
+	})
+	r.GET("/hello", func(c *jugg.Context) {
+		c.String(http.StatusOK, "hello %s, you're at %s\n", c.Query("name"), c.Path)
+	})
+	r.POST("/login", func(c *jugg.Context) {
+		c.JSON(http.StatusOK, jugg.H{
+			"username": c.PostForm("username"),
+			"password": c.PostForm("password"),
+		})
+	})
+	r.Run(":9999")
 }
