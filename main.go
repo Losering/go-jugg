@@ -33,5 +33,12 @@ func main() {
 			"password": c.PostForm("password"),
 		})
 	})
+
+	v1 := r.Group("/v1")
+	{
+		v1.GET("/", func(ctx *jugg.Context) {
+			ctx.HTML(http.StatusOK, "<h1>Hello jugg</h1>")
+		})
+	}
 	r.Run(":9999")
 }
